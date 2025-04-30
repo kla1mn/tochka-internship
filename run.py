@@ -2,9 +2,17 @@ import json
 
 
 def check_capacity(max_capacity: int, guests: list) -> bool:
+    """
+    Проверяет, можно ли разместить всех гостей в отеле.
+
+    :param max_capacity: Максимальная вместимость отеля.
+    :param guests: Список словарей с данными о гостях, каждый словарь должен содержать
+                    ключи 'check-in' и 'check-out' с датами в строковом формате.
+    :return: True, если все гости могут быть размещены, иначе False.
+    """
     if max_capacity == 0:
         return False
-    if len(guests) == 0:
+    if not guests:
         return True
 
     ins_and_outs: list[tuple[str, str]] = []
@@ -12,10 +20,10 @@ def check_capacity(max_capacity: int, guests: list) -> bool:
         ins_and_outs.append((guest["check-in"], "in"))
         ins_and_outs.append((guest["check-out"], "out"))
 
-    ins_and_outs.sort(key=lambda x: (x[0], x[1] == "in"))
+    ins_and_outs.sort(key=lambda x: (x[0], x[1] == "out"))
 
     guests_count = 0
-    for (date, check_type) in ins_and_outs:
+    for _, check_type in ins_and_outs:
         if check_type == "in":
             guests_count += 1
             if guests_count > max_capacity:
