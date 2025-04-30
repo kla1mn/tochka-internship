@@ -1,5 +1,4 @@
 import json
-import heapq
 
 
 def check_capacity(max_capacity: int, guests: list) -> bool:
@@ -8,18 +7,21 @@ def check_capacity(max_capacity: int, guests: list) -> bool:
     if len(guests) == 0:
         return True
 
-    guests.sort(key=lambda x: (x['check-out'], x['check-in']))
-
-    queue = []
+    ins_and_outs: list[tuple[str, str]] = []
     for guest in guests:
-        if len(queue) != max_capacity:
-            heapq.heappush(queue, (guest['check-out'], guest['check-in']))
-            continue
-        (check_out, _) = heapq.heappop(queue)
-        if check_out <= guest['check-in']:
-            heapq.heappush(queue, (guest['check-out'], guest['check-in']))
+        ins_and_outs.append((guest["check-in"], "in"))
+        ins_and_outs.append((guest["check-out"], "out"))
+
+    ins_and_outs.sort(key=lambda x: (x[0], x[1] == "in"))
+
+    guests_count = 0
+    for (date, check_type) in ins_and_outs:
+        if check_type == "in":
+            guests_count += 1
+            if guests_count > max_capacity:
+                return False
         else:
-            return False
+            guests_count -= 1
     return True
 
 
