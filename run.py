@@ -20,7 +20,7 @@ def check_capacity(max_capacity: int, guests: list) -> bool:
         ins_and_outs.append((guest["check-in"], "in"))
         ins_and_outs.append((guest["check-out"], "out"))
 
-    ins_and_outs.sort(key=lambda x: (x[0], x[1] == "out"))
+    ins_and_outs.sort(key=lambda x: (x[0], x[1] == "in"))
 
     guests_count = 0
     for _, check_type in ins_and_outs:

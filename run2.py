@@ -7,8 +7,7 @@ doors_char = [k.upper() for k in keys_char]
 directions = {(0, 1), (0, -1), (1, 0), (-1, 0)}
 
 
-def get_input():
-    """Чтение данных из стандартного ввода."""
+def get_input() -> list[list[str]]:
     return [list(line.strip()) for line in sys.stdin]
 
 
@@ -24,7 +23,9 @@ def get_robots_keys_coords(n: int, m: int, maze: list[list[str]]) -> (list, list
     return robots, keys
 
 
-def bfs_from_node_to_other(all_nodes, distances, i, m, maze, n, necessary_keys, node_to_id):
+def bfs_from_node_to_other(all_nodes: list[(int, int)], node_to_id: dict[(int, int), int],
+                           i: int, n: int, m: int, maze: list[list[str]],
+                           distances: list[list[float | int]], necessary_keys: list[list[int]]) -> None:
     node = all_nodes[i]
     queue = deque([(node[0], node[1], 0, 0)])
     visited = set()
@@ -51,20 +52,21 @@ def bfs_from_node_to_other(all_nodes, distances, i, m, maze, n, necessary_keys, 
 def calculate_distances_and_needed_keys(
         robots: list[tuple[int, int]],
         keys_coords: list[tuple[int, int]],
-        n: int, m: int, maze: list[list[str]]):
+        n: int, m: int, maze: list[list[str]]) -> (list[list[float | int]], list[list[int]]):
     all_nodes = robots + keys_coords
-    l = len(all_nodes)
+    nodes_count = len(all_nodes)
     node_to_id = {coord: idx for idx, coord in enumerate(all_nodes)}
-    distances = [[float('inf')] * l for _ in range(l)]
-    necessary_keys = [[0] * l for _ in range(l)]
+    distances = [[float('inf')] * nodes_count for _ in range(nodes_count)]
+    necessary_keys = [[0] * nodes_count for _ in range(nodes_count)]
 
-    for i in range(l):
-        bfs_from_node_to_other(all_nodes, distances, i, m, maze, n, necessary_keys, node_to_id)
+    for i in range(nodes_count):
+        bfs_from_node_to_other(all_nodes, node_to_id, i, n, m, maze, distances, necessary_keys)
 
     return distances, necessary_keys
 
 
-def dijkstra(distances, necessary_keys, keys_count, key_symbols):
+def dijkstra(distances: list[list[float]], necessary_keys: list[list[int]],
+             keys_count: int, key_symbols: list[str]) -> int:
     robots_count = 4  # в условии написано, что всегда 4 робота
 
     target_mask = 0
@@ -111,12 +113,12 @@ def dijkstra(distances, necessary_keys, keys_count, key_symbols):
                     heapq.heappush(priority_queue, (new_steps, new_positions, new_mask))
 
 
-def solve(maze):
+def solve(maze) -> int:
     n, m = len(maze), len(maze[0])
     robots, keys_with_symbol = get_robots_keys_coords(n, m, maze)
     keys_coords = [(x, y) for x, y, _ in keys_with_symbol]
     key_symbols = [symbol for _, _, symbol in keys_with_symbol]
-    keys_count = len(keys_coords)
+    keys_count = len(keys_with_symbol)
     distances, necessary_keys = calculate_distances_and_needed_keys(robots, keys_coords, n, m, maze)
     shortest_distance = dijkstra(distances, necessary_keys, keys_count, key_symbols)
     return shortest_distance
